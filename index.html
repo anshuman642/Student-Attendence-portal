@@ -1,0 +1,259 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Attendance Portal</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      background: #f0f0f0;
+      margin: 0;
+      padding: 0;
+    }
+
+    .header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 10px 30px;
+      background-color: #fff;
+    }
+
+    .header h1 {
+      font-size: 32px;
+      font-weight: bold;
+      color: #003366;
+      text-align: center;
+      flex: 1;
+    }
+
+    .logo {
+      width: 120px;
+      height: 120px;
+      object-fit: contain;
+    }
+
+    h2 {
+      text-align: center;
+      margin-top: 10px;
+      font-size: 28px;
+      font-weight: bold;
+      color: #333;
+      height: 40px;
+    }
+
+    .container {
+      max-width: 500px;
+      margin: 20px auto;
+      background: #2f9696;
+      padding: 20px;
+      border-radius: 12px;
+      box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+    }
+
+    label {
+      display: block;
+      margin-top: 10px;
+      font-weight: bold;
+    }
+
+    input, select, button {
+      padding: 10px;
+      margin-top: 5px;
+      width: 100%;
+      box-sizing: border-box;
+      border-radius: 6px;
+      border: 1px solid #3eb1b1;
+      font-size: 14px;
+    }
+
+    button {
+      background: #28a745;
+      color: white;
+      border: none;
+      cursor: pointer;
+      margin-top: 15px;
+    }
+
+    button:hover {
+      background: #218838;
+    }
+
+    ul {
+      margin-top: 20px;
+      padding: 0;
+      list-style: none;
+    }
+
+    li {
+      background: #10a5a5;
+      padding: 10px;
+      margin-bottom: 5px;
+      border-left: 5px solid #28a745;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      border-radius: 6px;
+    }
+
+    .delete-btn {
+      background: #dc3545;
+      border: none;
+      color: white;
+      padding: 5px 10px;
+      cursor: pointer;
+      font-size: 12px;
+      border-radius: 4px;
+    }
+
+    .delete-btn:hover {
+      background: #c82333;
+    }
+
+    .footer {
+      font-size: 16px;
+      margin: 30px 10px;
+      color: #444;
+      display: flex;
+      justify-content: space-between;
+      padding: 0 40px;
+      flex-wrap: wrap;
+    }
+
+    .footer div {
+      width: 45%;
+      min-width: 200px;
+    }
+  </style>
+</head>
+<body>
+
+  <div class="header">
+    <img src="AKS_University_logo.png" alt="AKS Logo" class="logo" />
+    <h1>AKS UNIVERSITY SATNA</h1>
+    <img src="AKS_University_logo.png" alt="AKS Logo" class="logo" />
+  </div>
+
+  <h2 id="animatedTitle">Attendance Portal</h2>
+
+  <div class="container">
+    <label>Select Class/Subject:</label>
+    <select id="subject">
+      <option value="ADVANCED PROGRAMMING">ADVANCED PROGRAMMING</option>
+      <option value="DISCRETE MATHEMATICS STRUCTURE">DISCRETE MATHEMATICS STRUCTURE</option>
+      <option value="COMPUTER ORGANIZATION & ARCHITECTURE">COMPUTER ORGANIZATION & ARCHITECTURE</option>
+      <option value="ENVIRONMENTAL SCIENCE">ENVIRONMENTAL SCIENCE</option>
+      <option value="ORGANIZATIONAL BEHAVIOR">ORGANIZATIONAL BEHAVIOR</option>
+      <option value="DESIGN & ANALYSIS OF ALGORITHMS">DESIGN & ANALYSIS OF ALGORITHMS</option>
+      <option value="UNIVERSAL HUMAN VALUES">UNIVERSAL HUMAN VALUES</option>
+      <option value="COMPUTER ORGANIZATION & ARCHITECTURE-LAB">COMPUTER ORGANIZATION & ARCHITECTURE-LAB</option>
+      <option value="MINOR PROJECT-Practical">MINOR PROJECT-Practical</option>
+      <option value="DESIGN & ANALYSIS OF ALGORITHMS-LAB">DESIGN & ANALYSIS OF ALGORITHMS-LAB</option>
+    </select>
+
+    <label>Select Date:</label>
+    <input type="date" id="date" />
+
+    <label>Enter student name:</label>
+    <input type="text" id="studentName" placeholder="e.g. Enter your name" />
+
+    <button onclick="markPresent()">✅ Add & Mark Present</button>
+
+    <h3>Present Students:</h3>
+    <ul id="presentList"></ul>
+  </div>
+
+  <div class="footer">
+    <div style="text-align: left;">
+      <p><strong>Submitted by:</strong><br/>Anshuman Namdev (B2355R10106066)<br/>Himanshu Soni (B2355R10106063)</p>
+    </div>
+    <div style="text-align: right;">
+      <p><strong>Submitted to:</strong><br/>Anand Dwivedi<br/>(Assistant Professor)</p>
+    </div>
+  </div>
+
+  <script>
+    const studentInput = document.getElementById('studentName');
+    const dateInput = document.getElementById('date');
+    const subjectInput = document.getElementById('subject');
+    const list = document.getElementById('presentList');
+
+    function getKey() {
+      return `${subjectInput.value}_${dateInput.value}`;
+    }
+
+    function markPresent() {
+      const name = studentInput.value.trim();
+      const key = getKey();
+
+      if (name === '' || dateInput.value === '') {
+        alert("Please enter student name and date.");
+        return;
+      }
+
+      let students = JSON.parse(localStorage.getItem(key)) || [];
+      if (!students.includes(name)) {
+        students.push(name);
+        localStorage.setItem(key, JSON.stringify(students));
+        studentInput.value = '';
+        renderList();
+      } else {
+        alert("Student already marked present.");
+      }
+    }
+
+    function deleteStudent(name) {
+      const key = getKey();
+      let students = JSON.parse(localStorage.getItem(key)) || [];
+      students = students.filter(student => student !== name);
+      localStorage.setItem(key, JSON.stringify(students));
+      renderList();
+    }
+
+    function renderList() {
+      const key = getKey();
+      const students = JSON.parse(localStorage.getItem(key)) || [];
+      list.innerHTML = '';
+      students.forEach(student => {
+        const li = document.createElement('li');
+        li.innerHTML = `${student} <button class="delete-btn" onclick="deleteStudent('${student}')">Delete</button>`;
+        list.appendChild(li);
+      });
+    }
+
+    dateInput.addEventListener('change', renderList);
+    subjectInput.addEventListener('change', renderList);
+    dateInput.valueAsDate = new Date();
+    renderList();
+
+    // Typing animation
+    const titleEl = document.getElementById("animatedTitle");
+    const titleText = " Student Attendance Portal";
+    let index = 0;
+    let direction = 1;
+
+    function animateTitle() {
+      if (direction === 1) {
+        titleEl.textContent = titleText.substring(0, index++);
+        if (index > titleText.length) {
+          direction = -1;
+          setTimeout(animateTitle, 800);
+          return;
+        }
+      } else {
+        titleEl.textContent = titleText.substring(0, index--);
+        if (index < 0) {
+          direction = 1;
+          setTimeout(animateTitle, 500);
+          return;
+        }
+      }
+      setTimeout(animateTitle, 150);
+    }
+
+    animateTitle();
+  </script>
+
+</body>
+</html>
